@@ -1,0 +1,4 @@
+path_to_sources: '/mnt/storage/data/work/g2p'
+path_to_work_dir: '/mnt/storage/data/work/g2p'
+batch_size: 16
+epochs: 30
