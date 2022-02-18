@@ -58,35 +58,31 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
 
 
 if __name__ == '__main__':
-    with open('configs/deep_blstm.yaml', 'r') as f:
-        config_model = yaml.load(f, Loader=yaml.FullLoader)
     with open('configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-
-    model_name = 'g2p_model_deep_blstm_test_1'
-
-    path_to_save_model = f"{config['path_to_work_dir']}/{model_name}"
-    checkpoint_filepath = f'{config["path_to_work_dir"]}/ckpt_{model_name}/best.ckpt'
-    train_dataset = tf.data.experimental.load(f"{config['path_to_work_dir']}/train_dataset")
-    val_dataset = tf.data.experimental.load(f"{config['path_to_work_dir']}/val_dataset")
+    with open(config['path_to_config_model'], 'r') as f:
+        config_model = yaml.load(f, Loader=yaml.FullLoader)
+    print("\nLOAD DATA")
+    train_dataset = tf.data.experimental.load(config['path_train_dataset'])
+    val_dataset = tf.data.experimental.load(config['path_val_dataset'])
     train_dataset.take(1000)
     val_dataset.take(1000)
     batch_size = config['batch_size']
     epochs = config['epochs']
     # model = create_simple_rnn(config_model)
     # model = create_lstm(config_model)
+    print("\nCREATE MODEL")
     model = create_blstm(config_model)
     for input_example_batch, target_example_batch in train_dataset.take(1):
         # print(input_example_batch)
         example_batch_predictions = model(input_example_batch)
         print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
     model.summary()
-    train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoint_filepath)
+    train_model(model, train_dataset, val_dataset, epochs, batch_size, config['path_to_checkpoint'])
     print("\nSAVING MODEL")
     print(f"   * load best checkpoint")
-    model.load_weights(checkpoint_filepath)
-    print(f"   * export to: {path_to_save_model}")
-    model.save(path_to_save_model, save_format="tf")
+    model.load_weights(config['path_to_checkpoint'])
+    print(f"   * export to: {config['path_to_model']}")
+    model.save(config['path_to_model'], save_format="tf")
     print(f"   * done!")
-    # model.summary()
     print("\nFINISHED!")

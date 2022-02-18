@@ -3,8 +3,10 @@ from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
 
+from vocabs import GRAPHEMES, PHONEMES
 
-def get_dataset(path_to_dict, path_to_tokens_grapheme, path_to_tokens_phoneme, batch_size=16, max_len_sequence=0):
+
+def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
     """
     Сырые данные преобразует в tf.dataset для обучения модели
     :param max_len_sequence:
@@ -14,8 +16,7 @@ def get_dataset(path_to_dict, path_to_tokens_grapheme, path_to_tokens_phoneme, b
 
     print('get_x_y...')
     words, spells = get_words_and_spells(path_to_dict, max_len_sequence)
-    tokens_grapheme, tokens_phoneme = get_tokens(path_to_tokens_grapheme, path_to_tokens_phoneme)
-    x, y = get_x_y(words, spells, tokens_grapheme, tokens_phoneme)
+    x, y = get_x_y(words, spells, GRAPHEMES, PHONEMES)
     del words
     del spells
     xy_sorted = sorted(zip(x, y), key=lambda a: len(a[0]))
@@ -57,17 +58,6 @@ def get_words_and_spells(path_to_dict, max_len_sequence=0):
         spells.append(phonemes)
     print(big, small)
     return words, spells
-
-
-def get_tokens(path_to_tokens_grapheme, path_to_tokens_phoneme):
-    with open(path_to_tokens_grapheme, 'r') as f:
-        lines_1 = f.readlines()
-        tokens_grapheme = [line.strip() for line in lines_1]
-
-    with open(path_to_tokens_phoneme, 'r') as f:
-        lines_2 = f.readlines()
-        tokens_phoneme = [line.strip() for line in lines_2]
-    return tokens_grapheme, tokens_phoneme
 
 
 def get_x_y(words, spells, tokens_grapheme, tokens_phoneme):
@@ -168,11 +158,9 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.9, val_split=0.1, shuff
 if __name__ == '__main__':
     with open('configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-    path_to_train_data = f'{config["path_to_sources"]}/data/train.txt'
-    path_to_tokens_grapheme = f'{config["path_to_sources"]}/data/graphemes.txt'
-    path_to_tokens_phoneme = f'{config["path_to_sources"]}/data/phonemes.txt'
-    # get_words_and_spells(path_to_train_data)
-    train_ds, val_ds = get_dataset(path_to_train_data, path_to_tokens_grapheme,
-                                   path_to_tokens_phoneme, batch_size=config['batch_size'])
-    tf.data.experimental.save(train_ds, f'{config["path_to_work_dir"]}/train_dataset')
-    tf.data.experimental.save(val_ds, f'{config["path_to_work_dir"]}/val_dataset')
+    train_ds, val_ds = get_dataset(config['path_to_train'], batch_size=config['batch_size'])
+    for batch in train_ds:
+        print(batch)
+        break
+    tf.data.experimental.save(train_ds, config['path_train_dataset'])
+    tf.data.experimental.save(val_ds, config['path_val_dataset'])

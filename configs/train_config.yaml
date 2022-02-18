@@ -1,4 +1,8 @@
-path_to_sources: '/mnt/storage/data/work/g2p'
-path_to_work_dir: '/mnt/storage/data/work/g2p'
+path_to_train: "./train.txt"
+path_train_dataset: "./train_dataset"
+path_val_dataset: "./val_dataset"
+path_to_model: "./models/deep_blstm/model_deep_blstm"
+path_to_config_model: "./models/deep_blstm/config_deep_blstm.yaml"
+path_to_checkpoint: "./models/deep_blstm/ckpt/best.ckpt"
 batch_size: 16
 epochs: 30
