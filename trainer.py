@@ -1,4 +1,5 @@
 import yaml
+import time
 import tensorflow as tf
 from graphs.simple_rnn import create_simple_rnn
 from graphs.lstm import create_lstm
@@ -21,15 +22,20 @@ def train_step(x, y):
 
 
 def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoint_filepath):
+    sum_loss_epoch = 0
+    count_epoch = 0
     for epoch in range(epochs):
+        start_time = time.time()
         print("\nStart of epoch %d" % (epoch,))
         sum_loss = 0.0
         count = 0.0
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
             loss_value = train_step(x_batch_train, y_batch_train)
             sum_loss += loss_value
+            sum_loss_epoch += loss_value
             count += 1
-            if step % 200 == 0:
+            count_epoch += 1
+            if step % 2000 == 0:
                 avg_loss = sum_loss / count
                 print(
                     "step=%d loss=%.4f"
@@ -45,7 +51,11 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
             val_sum_loss += val_loss
             val_count += 1
         val_avg_loss = val_sum_loss / val_count
-        print("epoch=%d val_loss=%.4f" % (epoch, float(val_avg_loss)))
+        avg_loss_epoch = sum_loss_epoch / count_epoch
+        print(time.time())
+        print("epoch=%d loss=%.4f val_loss=%.4f time_epoch=%.1f" % (epoch, avg_loss_epoch, 
+                                                                    val_avg_loss, 
+                                                                    time.time() - start_time))
     # model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_filepath,
     #                                                                save_weights_only=True,
     #                                                                monitor='val_loss',
@@ -65,8 +75,8 @@ if __name__ == '__main__':
     print("\nLOAD DATA")
     train_dataset = tf.data.experimental.load(config['path_train_dataset'])
     val_dataset = tf.data.experimental.load(config['path_val_dataset'])
-    train_dataset.take(1000)
-    val_dataset.take(1000)
+# #     train_dataset.take(1000)
+# #     val_dataset.take(1000)
     batch_size = config['batch_size']
     epochs = config['epochs']
     # model = create_simple_rnn(config_model)

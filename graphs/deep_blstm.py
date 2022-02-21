@@ -14,10 +14,10 @@ class MyModel(Model):
 
     def call(self, inputs, states=None, return_state=False, training=False):
         x = inputs
-        # x1 = self.lstm_1(x, training=training)
-        # x2 = self.blstm(x, training=training)
-        # x = tf.add(x1, x2)
-        # x = self.lstm_2(x, training=training)
+        x1 = self.lstm_1(x, training=training)
+        x2 = self.blstm(x, training=training)
+        x = tf.add(x1, x2)
+        x = self.lstm_2(x, training=training)
         x = self.dense(x, training=training)
         return x
 
