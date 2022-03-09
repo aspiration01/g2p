@@ -1,9 +1,13 @@
+import os
 import yaml
 from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
 
 from data.vocabs import GRAPHEMES, PHONEMES
+
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 
 def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
@@ -13,7 +17,11 @@ def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
     :param path_to_dict: путь к словарю grapheme to phoneme
     :return:tf.dataset
     """
-
+    
+    
+    gpus = tf.config.list_physical_devices('GPU')
+    print(gpus)
+#     tf.config.set_visible_devices(gpus[1], 'GPU')
     print('get_x_y...')
     words, spells = get_words_and_spells(path_to_dict, max_len_sequence)
     x, y = get_x_y(words, spells, GRAPHEMES, PHONEMES)
@@ -108,8 +116,8 @@ def get_batches(xy_sorted, batch_size):
     def gen1():
         for x_batch, y_batch in zip(x_batches, y_batches):
             yield x_batch, y_batch
-
-    dataset = tf.data.Dataset.from_generator(gen, output_types=(tf.float32, tf.float32))
+    with tf.device('/GPU:1'):
+        dataset = tf.data.Dataset.from_generator(gen, output_types=(tf.float32, tf.float32))
     # укладываем по батчам, padd-ит последовательночть в указанном shape None, так как в пакете тензоры должны быть одинакового размера
     m = dataset.padded_batch(batch_size, padded_shapes=([None, 35], [None, 49]), drop_remainder=True)
     del dataset
