@@ -1,0 +1,3 @@
+path_test_data: '/mnt/storage/data/work/g2p/data/test.txt'
+path_checkpoint: './models/deep_blstm/ckpt/best.ckpt'
+path_to_result_model: './result.txt'
