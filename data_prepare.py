@@ -157,7 +157,7 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.9, val_split=0.1, shuff
 
 
 if __name__ == '__main__':
-    with open('../configs/train_config.yaml', 'r') as f:
+    with open('configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     train_ds, val_ds = get_dataset(config['path_to_train'], batch_size=config['batch_size'])
     for batch in train_ds:

@@ -3,7 +3,7 @@ import numpy as np
 
 from graphs.deep_blstm import create_blstm
 from data.vocabs import GRAPHEMES, PHONEMES
-from data.data_prepare import get_sequence_one_hots
+from data_prepare import get_sequence_one_hots
 
 
 def get_inputs(words, tokens_gr):
