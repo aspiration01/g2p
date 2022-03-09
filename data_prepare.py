@@ -9,9 +9,6 @@ from data.vocabs import GRAPHEMES, PHONEMES
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-
 def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
     """
     Сырые данные преобразует в tf.dataset для обучения модели
