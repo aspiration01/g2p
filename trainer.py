@@ -1,6 +1,7 @@
 import yaml
 import time
 import tensorflow as tf
+import numpy as np
 from graphs.simple_rnn import create_simple_rnn
 from graphs.lstm import create_lstm
 from graphs.deep_blstm import create_blstm
@@ -11,7 +12,6 @@ optimizer = Adam(learning_rate=0.001)
 loss_fn = CategoricalCrossentropy()
 
 
-@tf.function
 def train_step(x, y):
     with tf.GradientTape() as tape:
         y_batch_pred = model(x, training=True)
@@ -30,6 +30,8 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
         sum_loss = 0.0
         count = 0.0
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
+            # np_x = np.array(x_batch_train)
+            # np_y = np.array(y_batch_train)
             loss_value = train_step(x_batch_train, y_batch_train)
             sum_loss += loss_value
             sum_loss_epoch += loss_value
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     print("\nSAVING MODEL")
     print(f"   * load best checkpoint")
     model.load_weights(config['path_to_checkpoint'])
-    print(f"   * export to: {config['path_to_model']}")
-    model.save(config['path_to_model'], save_format="tf")
+    print(f"   * export to: {config['path_to_save_model']}")
+    model.save(config['path_to_save_model'], save_format="tf")
     print(f"   * done!")
     print("\nFINISHED!")

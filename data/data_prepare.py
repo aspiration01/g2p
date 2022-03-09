@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
 
-from vocabs import GRAPHEMES, PHONEMES
+from data.vocabs import GRAPHEMES, PHONEMES
 
 
 def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
@@ -112,6 +112,7 @@ def get_batches(xy_sorted, batch_size):
     dataset = tf.data.Dataset.from_generator(gen, output_types=(tf.float32, tf.float32))
     # укладываем по батчам, padd-ит последовательночть в указанном shape None, так как в пакете тензоры должны быть одинакового размера
     m = dataset.padded_batch(batch_size, padded_shapes=([None, 35], [None, 49]), drop_remainder=True)
+    del dataset
     print('padded')
     batches = []
     for batch in tqdm(m, total=int(len(xy_sorted) / batch_size)):
@@ -156,7 +157,7 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.9, val_split=0.1, shuff
 
 
 if __name__ == '__main__':
-    with open('configs/train_config.yaml', 'r') as f:
+    with open('../configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     train_ds, val_ds = get_dataset(config['path_to_train'], batch_size=config['batch_size'])
     for batch in train_ds:
@@ -164,3 +165,6 @@ if __name__ == '__main__':
         break
     tf.data.experimental.save(train_ds, config['path_train_dataset'])
     tf.data.experimental.save(val_ds, config['path_val_dataset'])
+    # train_ds = tf.data.experimental.load(config['path_train_dataset'])
+    # val_ds = tf.data.experimental.load(config['path_val_dataset'])
+    print('ok')

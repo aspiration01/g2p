@@ -24,7 +24,7 @@ class MyModel(Model):
 
 def create_blstm(config_model):
     # inputs = Input((None, config_model['len_tokens_graphemes']))
-    # blstm = Bidirectional(LSTM(config_model['units_lstm'], return_sequences=True), input_shape=(None, config_model['len_tokens_graphemes']))
+    # blstm = LSTM(config_model['units_lstm'], return_sequences=True, input_shape=(None, config_model['len_tokens_graphemes']))
     # x = blstm(inputs)
     # dense = Dense(config_model['output_dense_layer_neurons'], activation='softmax',
     #               kernel_initializer=RandomNormal(stddev=0.01, seed=42),

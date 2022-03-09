@@ -1,0 +1,2 @@
+path_load_model: "./models/deep_blstm/model_deep_blstm"
+path_checkpoint: "./models/deep_blstm/ckpt/best.ckpt"
