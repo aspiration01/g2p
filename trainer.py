@@ -70,6 +70,11 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
 
 
 if __name__ == '__main__':
+    gpus = tf.config.list_physical_devices('GPU')
+    if len(gpus) >= 2:
+        tf.config.set_visible_devices(gpus[1], 'GPU')
+    elif len(gpus) == 1:
+        tf.config.set_visible_devices(gpus[0], 'GPU')
     with open('configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     with open(config['path_to_config_model'], 'r') as f:
