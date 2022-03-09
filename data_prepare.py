@@ -1,9 +1,12 @@
+import os
 import yaml
 from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
 
 from data.vocabs import GRAPHEMES, PHONEMES
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 
 def get_dataset(path_to_dict, batch_size=16, max_len_sequence=0):
@@ -157,7 +160,7 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.9, val_split=0.1, shuff
 
 
 if __name__ == '__main__':
-    with open('configs/train_config.yaml', 'r') as f:
+    with open('/home/murad/dss/g2p_github/configs/train_config.yaml', 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     train_ds, val_ds = get_dataset(config['path_to_train'], batch_size=config['batch_size'])
     for batch in train_ds:
