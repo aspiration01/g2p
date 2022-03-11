@@ -24,6 +24,7 @@ def train_step(x, y):
 def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoint_filepath):
     sum_loss_epoch = 0
     count_epoch = 0
+    best_avg_val_loss = 0.0
     for epoch in range(epochs):
         start_time = time.time()
         print("\nStart of epoch %d" % (epoch,))
@@ -58,15 +59,16 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
         print("epoch=%d loss=%.4f val_loss=%.4f time_epoch=%.1f" % (epoch, avg_loss_epoch, 
                                                                     val_avg_loss, 
                                                                     time.time() - start_time))
-    # model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_filepath,
-    #                                                                save_weights_only=True,
-    #                                                                monitor='val_loss',
-    #                                                                mode='min',
-    #                                                                save_best_only=True)
-    # early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
-    # model.compile(loss='categorical_crossentropy', optimizer='adam')
-    # model.fit(train_dataset, epochs=1, verbose=1, validation_data=val_dataset,
-    #           callbacks=[early_stopping, model_checkpoint_callback])
+
+        best_avg_val_loss = callback_checkpoint(model, val_avg_loss, best_avg_val_loss, checkpoint_filepath)
+
+
+def callback_checkpoint(model, val_loss, best_val_loss, checkpoint_filepath):
+    if val_loss < best_val_loss:
+        model.save_weights(checkpoint_filepath)
+        return val_loss
+    else:
+        return best_val_loss
 
 
 if __name__ == '__main__':
