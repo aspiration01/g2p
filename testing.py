@@ -74,8 +74,7 @@ if __name__ == '__main__':
         config_model = yaml.load(f, Loader=yaml.FullLoader)
     model = create_blstm(config_model)
     model.load_weights(config['path_checkpoint'])
-    path_to_result = (config['path_to_result_model'])
-    result = open(path_to_result, 'w')
+    result = open(config['path_to_result_model'], 'w')
     X, Y = prepare_test_data(config['path_test_data'])
     X = X[:100]
     Y = Y[:100]

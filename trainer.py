@@ -8,6 +8,10 @@ from graphs.deep_blstm import create_blstm
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 
+
+from testing import prepare_test_data, func_testing
+from data.vocabs import PHONEMES
+
 optimizer = Adam(learning_rate=0.001)
 loss_fn = CategoricalCrossentropy()
 
@@ -21,10 +25,12 @@ def train_step(x, y):
     return loss_value
 
 
-def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoint_filepath):
+def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoint_filepath, test_config):
     sum_loss_epoch = 0
     count_epoch = 0
-    best_avg_val_loss = 0.0
+    best_avg_val_loss = 1.0
+    result = open(test_config['path_to_result_model'], 'w')
+    X, y = prepare_test_data(test_config['path_test_data'])
     for epoch in range(epochs):
         start_time = time.time()
         print("\nStart of epoch %d" % (epoch,))
@@ -59,8 +65,8 @@ def train_model(model, train_dataset, val_dataset, epochs, batch_size, checkpoin
         print("epoch=%d loss=%.4f val_loss=%.4f time_epoch=%.1f" % (epoch, avg_loss_epoch, 
                                                                     val_avg_loss, 
                                                                     time.time() - start_time))
-
         best_avg_val_loss = callback_checkpoint(model, val_avg_loss, best_avg_val_loss, checkpoint_filepath)
+        func_testing(model, X, y, result, PHONEMES)
 
 
 def callback_checkpoint(model, val_loss, best_val_loss, checkpoint_filepath):
@@ -78,16 +84,18 @@ if __name__ == '__main__':
     elif len(gpus) == 1:
         tf.config.set_visible_devices(gpus[0], 'GPU')
     with open('configs/train_config.yaml', 'r') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-    with open(config['path_to_config_model'], 'r') as f:
+        train_config = yaml.load(f, Loader=yaml.FullLoader)
+    with open('configs/test_config.yaml', 'r') as f:
+        test_config = yaml.load(f, Loader=yaml.FullLoader)
+    with open(train_config['path_to_config_model'], 'r') as f:
         config_model = yaml.load(f, Loader=yaml.FullLoader)
     print("\nLOAD DATA")
-    train_dataset = tf.data.experimental.load(config['path_train_dataset'])
-    val_dataset = tf.data.experimental.load(config['path_val_dataset'])
+    train_dataset = tf.data.experimental.load(train_config['path_train_dataset'])
+    val_dataset = tf.data.experimental.load(train_config['path_val_dataset'])
 # #     train_dataset.take(1000)
 # #     val_dataset.take(1000)
-    batch_size = config['batch_size']
-    epochs = config['epochs']
+    batch_size = train_config['batch_size']
+    epochs = train_config['epochs']
     # model = create_simple_rnn(config_model)
     # model = create_lstm(config_model)
     print("\nCREATE MODEL")
@@ -97,11 +105,11 @@ if __name__ == '__main__':
         example_batch_predictions = model(input_example_batch)
         print(example_batch_predictions.shape, "# (batch_size, sequence_length, vocab_size)")
     model.summary()
-    train_model(model, train_dataset, val_dataset, epochs, batch_size, config['path_to_checkpoint'])
+    train_model(model, train_dataset, val_dataset, epochs, batch_size, train_config['path_to_checkpoint'], test_config)
     print("\nSAVING MODEL")
     print(f"   * load best checkpoint")
-    model.load_weights(config['path_to_checkpoint'])
-    print(f"   * export to: {config['path_to_save_model']}")
-    model.save(config['path_to_save_model'], save_format="tf")
+    model.load_weights(train_config['path_to_checkpoint'])
+    print(f"   * export to: {train_config['path_to_save_model']}")
+    model.save(train_config['path_to_save_model'], save_format="tf")
     print(f"   * done!")
     print("\nFINISHED!")
